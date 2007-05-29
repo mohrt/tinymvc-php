@@ -108,7 +108,7 @@ $tmvc = new $controller_class(true);
 set_error_handler('tmvc_error_handler');
 
 /* see if controller class method exists */
-$controller_method = !empty($path_info[2]) ? preg_replace('!\W!','',$path_info[2]) : 'index';
+$controller_method = !empty($path_info[2]) ? $path_info[2] : 'index';
 
 /* cannot call method names starting with underscore */
 if(substr($controller_method,0,1)=='_')
