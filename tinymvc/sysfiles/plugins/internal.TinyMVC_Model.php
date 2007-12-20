@@ -40,9 +40,9 @@ class TinyMVC_Model
     /* load config information */
     include(TMVC_MYAPPDIR . 'configs' . DS . 'database.php');  
 
-    if(!empty($database['plugin']))
+    if(!empty($config['plugin']))
     {
-      $filename = 'db.' . $database['plugin'] . '.php';
+      $filename = 'db.' . $config['plugin'] . '.php';
       
       /* look for the plugin in apps/myfiles/sysfiles plugins dirs */
       $filepath = TMVC_MYAPPDIR . 'plugins' . DS . $filename;
@@ -52,16 +52,16 @@ class TinyMVC_Model
         $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
       
       if(!file_exists($filepath))
-        trigger_error("Unknown database library '{$database['plugin']}'",E_USER_ERROR);
+        trigger_error("Unknown database library '{$config['plugin']}'",E_USER_ERROR);
       
       require_once($filepath);
 
       /* classname must match the plugin name */      
-      if(!class_exists($database['plugin']))
-        trigger_error("Unknown database class '{$database['plugin']}'",E_USER_ERROR);
+      if(!class_exists($config['plugin']))
+        trigger_error("Unknown database class '{$config['plugin']}'",E_USER_ERROR);
       
       /* assign the object instance as a property */
-      $this->db = new $database['plugin'];
+      $this->db = new $config['plugin'];
     }
 
   }
