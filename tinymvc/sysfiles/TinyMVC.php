@@ -9,7 +9,7 @@
  ***/
 
 if(!defined('TMVC_VERSION'))
-  define('TMVC_VERSION','1.0.1');
+  define('TMVC_VERSION','1.0.2-dev');
 
 /**
  * tmvc
