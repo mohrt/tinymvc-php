@@ -119,10 +119,9 @@ class TinyMVC_View
       trigger_error("Unknown file '$_tmvc_filepath'",E_USER_ERROR);
 
     // bring view vars into view scope
+      extract($this->view_vars);
     if(isset($view_vars))
       extract($view_vars);
-    else
-      extract($this->view_vars);
     include($_tmvc_filepath);
   }
 
