@@ -34,9 +34,7 @@ class TinyMVC_View
 	 *
 	 * @access	public
 	 */
-  function __construct()
-  {  
-  }
+  function __construct() {}
   
 	/**
 	 * assign
