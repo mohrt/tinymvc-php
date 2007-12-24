@@ -45,9 +45,9 @@ class TinyMVC_ErrorHandler
     $errors['errstr'] = $errstr;
     $errors['errfile'] = $errfile;
     $errors['errline'] = $errline;
-    $tmvc->view_vars['errors'] = $errors;
+    $tmvc->view->view_vars['errors'] = $errors;
     /* display the error view */
-    $tmvc->_sysview('error_view');
+    $tmvc->view->sysview('error_view');
     /* exit if not a notice */
     if($errno == E_USER_ERROR)
       exit(1);
