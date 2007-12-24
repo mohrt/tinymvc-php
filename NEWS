@@ -1,3 +1,9 @@
+1.0.1
+-----
+
+* add view controller so view loading worsk as $this->view->display() like in the docs (mohrt)
+* use try/catch for controller method execution so __call can be utilized (areazero, mohrt)
+
 1.0
 ---
 
