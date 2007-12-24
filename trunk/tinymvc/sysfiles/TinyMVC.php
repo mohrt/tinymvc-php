@@ -118,10 +118,8 @@ if(substr($controller_method,0,1)=='_')
 if(in_array($controller_method,array('view','assign','fetch')))
   trigger_error("Reserved method name not allowed '{$controller_method}'",E_USER_ERROR);
 
-if(!method_exists($tmvc,$controller_method))
-  trigger_error("Unknown controller method '{$controller_method}'",E_USER_ERROR);
-
 include(TMVC_MYAPPDIR . 'configs' . DS . 'autoload.php');
+
 /* auto-load libraries */
 if(!empty($config['libraries']))
 {
@@ -131,6 +129,7 @@ if(!empty($config['libraries']))
     else
       $tmvc->load->library($library);
 }
+
 /* auto-load scripts */
 if(!empty($config['scripts']))
 {
@@ -139,7 +138,10 @@ if(!empty($config['scripts']))
 }
   
 /* execute method */
-$tmvc->$controller_method();
-
+try {
+  $tmvc->$controller_method();
+} catch (Exception $e) {
+  trigger_error("Unknown controller method '{$controller_method}'",E_USER_ERROR);
+}
   
 ?>

@@ -13,7 +13,7 @@ class Default_Controller extends TinyMVC_Controller
 {
   function index()
   {
-    $this->view('index_view');
+    $this->view->display('index_view');
   }
 }
 
