@@ -83,7 +83,7 @@ class TinyMVC_View
   public function fetch($filename,$view_vars=null)
   {
     ob_start();
-    $this->view($filename,$view_vars);
+    $this->display($filename,$view_vars);
     $results = ob_get_contents();
     ob_end_clean();
     return $results;
