@@ -16,9 +16,8 @@ WEBSITE:
 DOWNLOAD:
     http://www.tinymvc.com/download
 
-ANONYMOUS CVS: (leave password empty)
-    cvs -d :pserver:anonymous@cvs.phpinsider.com:/export/CVS login
-    cvs -d :pserver:anonymous@cvs.phpinsider.com:/export/CVS checkout TinyMVC
+ANONYMOUS SVN:
+    svn checkout http://tinymvc-php.googlecode.com/svn/trunk/ tinymvc-php-read-only
 
     
 DESCRIPTION:
