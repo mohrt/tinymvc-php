@@ -40,7 +40,7 @@ class TinyMVC_Model
     /* load config information */
     $db_file_path = TMVC_MYAPPDIR . 'configs' . DS . 'database.php';
     if(!file_exists($db_file_path))
-      trigger_error("Unable to include file $db_file_path");
+      trigger_error("Unable to include file: $db_file_path");
     else
       include($db_file_path);  
 
