@@ -35,9 +35,10 @@ class TinyMVC_Load
 	 * @param   string $model_name the name of the model class
 	 * @param   string $model_alias the property name alias
 	 * @param   string $filename the filename
+	 * @param   string $pool_name the database pool name to use
 	 * @return  boolean
 	 */    
-  public function model($model_name,$model_alias=null,$filename=null)
+  public function model($model_name,$model_alias=null,$filename=null,$pool_name=null)
   {
 
     /* if no alias, use the model name */
@@ -51,7 +52,7 @@ class TinyMVC_Load
     if(empty($model_alias))  
       trigger_error("Model name cannot be empty",E_USER_ERROR);
 
-    if(!preg_match('!^[a-zA-Z][a-zA-Z_]+$!',$model_alias))
+    if(!preg_match('!^[a-zA-Z][a-zA-Z0-9_]+$!',$model_alias))
       trigger_error("Model name '{$model_alias}' is an invalid syntax",E_USER_ERROR);
       
     if(method_exists($this,$model_alias))
@@ -76,7 +77,7 @@ class TinyMVC_Load
     $tmvc = tmvc::instance();
     
     /* instantiate the object as a property */
-    $tmvc->$model_alias = new $model_name;
+    $tmvc->$model_alias = new $model_name($pool_name);
     
     return true;
       
@@ -179,6 +180,51 @@ class TinyMVC_Load
       
   }
 
+	/**
+	* database
+	*
+	* returns a database plugin object
+	*
+	* @access	public
+	* @param	string $poolname the name of the database pool (if NULL default pool is used)
+	* @return	object
+	*/
+  public function database($poolname = null) {
+    static $dbs = array();
+    /* load config information */
+    include(TMVC_MYAPPDIR . 'configs' . DS . 'database.php');
+    if(!$poolname) 
+      $poolname=isset($config['default_pool']) ? $config['default_pool'] : 'default';
+    if ($poolname && isset($dbs[$poolname]))
+    {
+      /* returns object from runtime cache */
+	    return $dbs[$poolname];
+    }
+    if($poolname && isset($config[$poolname]) && !empty($config[$poolname]['plugin']))
+    {
+      $filename = 'db.' . $config[$poolname]['plugin'] . '.php';
+      
+      /* look for the plugin in apps/myfiles/sysfiles plugins dirs */
+      $filepath = TMVC_MYAPPDIR . 'plugins' . DS . $filename;
+      if(!file_exists($filepath))
+        $filepath = TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS . $filename;
+      if(!file_exists($filepath))
+        $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
+      
+      if(!file_exists($filepath))
+        trigger_error("Unknown database library '{$config[$poolname]['plugin']}'",E_USER_ERROR);
+      
+      require_once($filepath);
+
+      /* classname must match the plugin name */      
+      if(!class_exists($config[$poolname]['plugin']))
+        trigger_error("Unknown database class '{$config[$poolname]['plugin']}'",E_USER_ERROR);
+      /* add to runtime cache */
+      $dbs[$poolname] = new $config[$poolname]['plugin']($config[$poolname]);
+      return $dbs[$poolname];
+     }
+  }  
+  
 }
 
 ?>
