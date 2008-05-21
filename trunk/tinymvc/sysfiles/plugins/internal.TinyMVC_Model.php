@@ -19,8 +19,6 @@
 
 class TinyMVC_Model
 {
-
-
  	/**
 	 * $db
 	 *
@@ -35,39 +33,8 @@ class TinyMVC_Model
 	 *
 	 * @access	public
 	 */
-  function __construct() {
-
-    /* load config information */
-    $db_file_path = TMVC_MYAPPDIR . 'configs' . DS . 'database.php';
-    if(!file_exists($db_file_path))
-      trigger_error("Unable to include file: $db_file_path");
-    else
-      include($db_file_path);  
-
-    if(!empty($config['plugin']))
-    {
-      $filename = 'db.' . $config['plugin'] . '.php';
-      
-      /* look for the plugin in apps/myfiles/sysfiles plugins dirs */
-      $filepath = TMVC_MYAPPDIR . 'plugins' . DS . $filename;
-      if(!file_exists($filepath))
-        $filepath = TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS . $filename;
-      if(!file_exists($filepath))
-        $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
-      
-      if(!file_exists($filepath))
-        trigger_error("Unknown database library '{$config['plugin']}'",E_USER_ERROR);
-      
-      require_once($filepath);
-
-      /* classname must match the plugin name */      
-      if(!class_exists($config['plugin']))
-        trigger_error("Unknown database class '{$config['plugin']}'",E_USER_ERROR);
-      
-      /* assign the object instance as a property */
-      $this->db = new $config['plugin'];
-    }
-
+  function __construct($poolname=null) {
+    $this->db = tmvc::instance()->load->database($poolname);
   }
   
 }

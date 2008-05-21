@@ -62,9 +62,7 @@ class TMVC_PDO
 	 *
 	 * @access	public
 	 */
-  function __construct() {
-
-   include(TMVC_MYAPPDIR . 'configs' . DS . 'database.php');
+  function __construct($config) {
     
    if(!class_exists('PDO'))
      trigger_error("PHP PDO package is required.",E_USER_ERROR);
@@ -72,10 +70,13 @@ class TMVC_PDO
    if(empty($config))
      trigger_error("database definitions required.",E_USER_ERROR);
 
+   if(empty($config['charset']))
+    $config['charset'] = 'UTF-8';
+     
     /* create link */
     try {    
       $this->pdo = new PDO(
-        "{$config['type']}:host={$config['host']};dbname={$config['name']}",
+        "{$config['type']}:host={$config['host']};dbname={$config['name']};charset={$config['charset']}",
         $config['user'],
         $config['pass'],
         array(PDO::ATTR_PERSISTENT => !empty($config['persistent']) ? true : false)
