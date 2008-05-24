@@ -3,7 +3,7 @@
 /***
  * Name:       TinyMVC
  * About:      An MVC application framework for PHP
- * Copyright:  (C) 2007, New Digital Group Inc.
+ * Copyright:  (C) 2007-2008 Monte Ohrt, All rights reserved.
  * Author:     Monte Ohrt, monte [at] ohrt [dot] com
  * License:    LGPL, see included license file  
  ***/
@@ -93,6 +93,8 @@ $path_info = !empty($_SERVER['PATH_INFO']) ? explode('/',$_SERVER['PATH_INFO']) 
 $controller = !empty($path_info[1]) ? preg_replace('!\W!','',$path_info[1]) : $config['default_controller'];
 $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller}.php";
 
+set_error_handler('tmvc_error_handler');
+
 /* see if controller exists */
 if(!file_exists($controller_file))
   trigger_error("Unknown controller file '{$controller}'",E_USER_ERROR);
@@ -104,8 +106,6 @@ if(!class_exists($controller_class))
   trigger_error("Unknown controller class '{$controller_class}'",E_USER_ERROR);
   
 $tmvc = new $controller_class(true);
-
-set_error_handler('tmvc_error_handler');
 
 /* see if controller class method exists */
 $controller_method = !empty($path_info[2]) ? $path_info[2] : 'index';
@@ -138,10 +138,10 @@ if(!empty($config['scripts']))
 }
   
 /* execute method */
-try {
+if (method_exists($tmvc,$controller_method)) {
   $tmvc->$controller_method();
-} catch (Exception $e) {
+} else {
   trigger_error("Unknown controller method '{$controller_method}'",E_USER_ERROR);
-}
+}  
   
 ?>
