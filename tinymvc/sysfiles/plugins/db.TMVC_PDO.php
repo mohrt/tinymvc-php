@@ -320,46 +320,14 @@ class TMVC_PDO
   }  
   
 	/**
-	 * get_one
-	 *
-	 * get an active record query, one record
-	 *
-	 * @access	public
-	 * @param   string $fetch_mode the PDO fetch mode
-	 */    
-  function get_one($fetch_mode=null)
-  {
-    $this->get($fetch_mode);
-    return $this->next($fetch_mode);
-  }  
-
-	/**
-	 * get_all
-	 *
-	 * get an active record query, one record
-	 *
-	 * @access	public
-	 * @param   string $fetch_mode the PDO fetch mode
-	 */    
-  function get_all($fetch_mode=null)
-  {
-    $this->get($fetch_mode);
-    $results = array();
-    while($row = $this->next($fetch_mode))
-      $results[] = $row;
-    return $results;
-  }  
-
-  
-	/**
-	 * get
+	 * _query_assemble
 	 *
 	 * get an active record query
 	 *
 	 * @access	public
 	 * @param   string $fetch_mode the PDO fetch mode
 	 */    
-  function get($fetch_mode=null)
+  private function _query_assemble($fetch_mode=null)
   {
   
     if(empty($this->get_query['from']))
@@ -407,11 +375,9 @@ class TMVC_PDO
     $query_string = implode(' ',$query);
     $this->last_query = $query_string;
     
-    $ret = $this->_query($query_string,$params,TMVC_SQL_NONE,$fetch_mode);
-    
     $this->get_query = array('select' => '*');
     
-    return $ret;
+    return $query_string;
     
   }  
   
@@ -425,8 +391,11 @@ class TMVC_PDO
 	 * @param   array $params an array of query params
 	 * @param   int $fetch_mode the fetch formatting mode
 	 */    
-  function query($query,$params=null,$fetch_mode=null)
+  function query($query=null,$params=null,$fetch_mode=null)
   {
+    if(!isset($query))
+      $query = $this->_query_assemble($fetch_mode);
+  
     return $this->_query($query,$params,TMVC_SQL_NONE,$fetch_mode);
   }  
 
@@ -439,8 +408,11 @@ class TMVC_PDO
 	 * @param   array $params an array of query params
 	 * @param   int $fetch_mode the fetch formatting mode
 	 */    
-  function query_all($query,$params=null,$fetch_mode=null)
+  function query_all($query=null,$params=null,$fetch_mode=null)
   {
+    if(!isset($query))
+      $query = $this->_query_assemble($fetch_mode);
+  
     return $this->_query($query,$params,TMVC_SQL_ALL,$fetch_mode);
   }  
 
@@ -453,8 +425,11 @@ class TMVC_PDO
 	 * @param   array $params an array of query params
 	 * @param   int $fetch_mode the fetch formatting mode
 	 */    
-  function query_one($query,$params=null,$fetch_mode=null)
+  function query_one($query=null,$params=null,$fetch_mode=null)
   {
+    if(!isset($query))
+      $query = $this->_query_assemble($fetch_mode);
+  
     return $this->_query($query,$params,TMVC_SQL_INIT,$fetch_mode);
   }  
   
