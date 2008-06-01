@@ -34,7 +34,7 @@ class tmvc
   public static function &instance($new_instance=null)
   {
     static $instance = null;
-    if(isset($new_instance))
+    if(isset($new_instance) && is_object($new_instance))
       $instance = $new_instance;
     return $instance;
   }
@@ -72,7 +72,7 @@ function tmvc_error_handler($errno, $errstr, $errfile, $errline)
 
   include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
 
-  $errors =& new $config['error_handler_class'];
+  $errors = new $config['error_handler_class'];
   $errors->trigger_error($errno, $errstr, $errfile, $errline);
 
   /* don't execute PHP internal error handler */
