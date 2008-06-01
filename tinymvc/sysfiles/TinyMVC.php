@@ -11,6 +11,10 @@
 if(!defined('TMVC_VERSION'))
   define('TMVC_VERSION','1.0.2-dev');
 
+/* directory separator alias */
+if(!defined('DS'))
+  define('DS',DIRECTORY_SEPARATOR);  
+  
 /**
  * tmvc
  *
