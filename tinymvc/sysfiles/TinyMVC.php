@@ -96,12 +96,18 @@ include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
 $path_info = !empty($_SERVER['PATH_INFO']) ? explode('/',$_SERVER['PATH_INFO']) : null;
 $controller = !empty($path_info[1]) ? preg_replace('!\W!','',$path_info[1]) : $config['default_controller'];
 $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller}.php";
+$unknown_controller = false;
 
 set_error_handler('tmvc_error_handler');
 
 /* see if controller exists */
 if(!file_exists($controller_file))
-  trigger_error("Unknown controller file '{$controller}'",E_USER_ERROR);
+{
+  $unknown_controller = $controller;
+  $controller = $config['default_controller'];
+  $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller}.php";
+}
+
 include($controller_file);
 
 /* see if controller class exists */
@@ -117,10 +123,6 @@ $controller_method = !empty($path_info[2]) ? $path_info[2] : 'index';
 /* cannot call method names starting with underscore */
 if(substr($controller_method,0,1)=='_')
   trigger_error("Private method name not allowed '{$controller_method}'",E_USER_ERROR);
-
-/* cannot call reserved method names */
-if(in_array($controller_method,array('view','assign','fetch')))
-  trigger_error("Reserved method name not allowed '{$controller_method}'",E_USER_ERROR);
 
 include(TMVC_MYAPPDIR . 'configs' . DS . 'autoload.php');
 
@@ -141,11 +143,13 @@ if(!empty($config['scripts']))
     $tmvc->load->script($script);
 }
   
-/* execute method */
-if (method_exists($tmvc,$controller_method)) {
-  $tmvc->$controller_method();
-} else {
+try {
+  if($unknown_controller === false)
+    $tmvc->$controller_method();
+  else
+    $tmvc->catch_controller($unknown_controller,$controller_method);
+} catch (Exception $e) {
   trigger_error("Unknown controller method '{$controller_method}'",E_USER_ERROR);
-}  
+}
   
 ?>

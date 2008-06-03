@@ -46,6 +46,32 @@ class TinyMVC_Controller
 	 */    
   function index() { }
 
+	/**
+	 * catch_controller
+	 *
+	 * called when no controller was found
+	 *
+	 * @access	public
+	 */    
+  function catch_controller($controller,$method) {
+  
+    trigger_error("Unknown controller '{$controller}'",E_USER_ERROR);
+     
+  }
+
+	/**
+	 * __call
+	 *
+	 * gets called when an unspecified method is used
+	 *
+	 * @access	public
+	 */    
+  function __call($function, $args) {
+  
+    trigger_error("Unknown controller method '{$function}'",E_USER_ERROR);
+
+  }
+  
 }
 
 ?>
