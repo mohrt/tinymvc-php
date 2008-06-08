@@ -58,11 +58,11 @@ class TMVC_PDO
   var $fetch_mode = PDO::FETCH_ASSOC;
 
  	/**
-	 * $get_query
+	 * $query_params
 	 *
 	 * @access	public
 	 */
-  var $get_query = array('select' => '*');
+  var $query_params = array('select' => '*');
 
  	/**
 	 * $last_query
@@ -70,6 +70,13 @@ class TMVC_PDO
 	 * @access	public
 	 */
   var $last_query = null;
+
+ 	/**
+	 * $last_query_type
+	 *
+	 * @access	public
+	 */
+  var $last_query_type = null;
   
  	/**
 	 * class constructor
@@ -114,7 +121,7 @@ class TMVC_PDO
 	 */    
   function select($clause)
   {
-    return $this->get_query['select'] = $clause;
+    return $this->query_params['select'] = $clause;
   }  
 
 	/**
@@ -127,7 +134,7 @@ class TMVC_PDO
 	 */    
   function from($clause)
   {
-    return $this->get_query['from'] = $clause;
+    return $this->query_params['from'] = $clause;
   }  
 
 	/**
@@ -140,7 +147,16 @@ class TMVC_PDO
 	 */    
   function where($clause,$args)
   {
-    $this->_where($clause,$args,'AND');    
+    if(empty($clause))
+      trigger_error(sprintf("where cannot be empty"),E_USER_ERROR);
+  
+    if(!preg_match('![=<>]!',$clause))
+     $clause .= '=';  
+  
+    if(strpos($clause,'?')===false)
+      $clause .= '?';
+      
+    $this->_where($clause,(array)$args,'AND');    
   }  
 
 	/**
@@ -174,10 +190,10 @@ class TMVC_PDO
     if(($count = substr_count($clause,'?')) && (count($args) != $count))
       trigger_error(sprintf("Number of where clause args don't match number of ?: '%s'",$clause),E_USER_ERROR);
       
-    if(!isset($this->get_query['where']))
-      $this->get_query['where'] = array();
+    if(!isset($this->query_params['where']))
+      $this->query_params['where'] = array();
       
-    return $this->get_query['where'][] = array('clause'=>$clause,'args'=>$args,'prefix'=>$prefix);
+    return $this->query_params['where'][] = array('clause'=>$clause,'args'=>$args,'prefix'=>$prefix);
   }  
 
 	/**
@@ -195,10 +211,10 @@ class TMVC_PDO
     if(!empty($join_type))
       $clause = $join_type . ' ' . $clause;
     
-    if(!isset($this->get_query['join']))
-      $this->get_query['join'] = array();
+    if(!isset($this->query_params['join']))
+      $this->query_params['join'] = array();
       
-    $this->get_query['join'][] = $clause;
+    $this->query_params['join'][] = $clause;
   }  
 
 	/**
@@ -312,10 +328,10 @@ class TMVC_PDO
     if(empty($type)||empty($clause))
       return false;
       
-    $this->get_query[$type] = array('clause'=>$clause);
+    $this->query_params[$type] = array('clause'=>$clause);
     
     if(isset($args))
-      $this->get_query[$type]['args'] = $args;
+      $this->query_params[$type]['args'] = $args;
       
   }  
   
@@ -327,60 +343,75 @@ class TMVC_PDO
 	 * @access	public
 	 * @param   string $fetch_mode the PDO fetch mode
 	 */    
-  private function _query_assemble($fetch_mode=null)
+  private function _query_assemble(&$params,$fetch_mode=null)
   {
   
-    if(empty($this->get_query['from']))
+    if(empty($this->query_params['from']))
     {
       trigger_error("Unable to get(), set from() first",E_USER_ERROR);
       return false;
     }
     
-    $params = array();
     $query = array();
-    $where_init = false;
-    $query[] = "SELECT {$this->get_query['select']}";
-    $query[] = "FROM {$this->get_query['from']}";
+    $query[] = "SELECT {$this->query_params['select']}";
+    $query[] = "FROM {$this->query_params['from']}";
 
     // assemble join clause
-    if(!empty($this->get_query['join']))
-      foreach($this->get_query['join'] as $cjoin)
+    if(!empty($this->query_params['join']))
+      foreach($this->query_params['join'] as $cjoin)
         $query[] = $cjoin;
     
     // assemble where clause
-    if(!empty($this->get_query['where']))
-    {
-      foreach($this->get_query['where'] as $cwhere)
-      {
-        $prefix = !$where_init ? 'WHERE' : $cwhere['prefix'];
-        $where = "{$prefix} {$cwhere['clause']}";
-        $params = array_merge($params,(array) $cwhere['args']);
-        $where_init = true;
-        $query[] = $where;
-      }
-    }
+    if($where = $this->_assemble_where($where_string,$params))
+      $query[] = $where_string;
 
     // assemble groupby clause
-    if(!empty($this->get_query['groupby']))
-      $query[] = "GROUP BY {$this->get_query['groupby']['clause']}";
+    if(!empty($this->query_params['groupby']))
+      $query[] = "GROUP BY {$this->query_params['groupby']['clause']}";
     
     // assemble orderby clause
-    if(!empty($this->get_query['orderby']))
-      $query[] = "ORDER BY {$this->get_query['orderby']['clause']}";
+    if(!empty($this->query_params['orderby']))
+      $query[] = "ORDER BY {$this->query_params['orderby']['clause']}";
     
     // assemble limit clause
-    if(!empty($this->get_query['limit']))
-      $query[] = "LIMIT {$this->get_query['limit']['clause']}";
+    if(!empty($this->query_params['limit']))
+      $query[] = "LIMIT {$this->query_params['limit']['clause']}";
     
     $query_string = implode(' ',$query);
     $this->last_query = $query_string;
     
-    $this->get_query = array('select' => '*');
+    $this->query_params = array('select' => '*');
     
     return $query_string;
     
   }  
   
+	/**
+	 * _assemble_where
+	 *
+	 * assemble where query
+	 *
+	 * @access	private
+	 */    
+  private function _assemble_where(&$where,&$params)
+  {
+    if(!empty($this->query_params['where']))
+    {
+      $where_init = false;
+      $where_parts = array();
+      $params = array();
+      foreach($this->query_params['where'] as $cwhere)
+      {
+        $prefix = !$where_init ? 'WHERE' : $cwhere['prefix'];
+        $where_parts[] = "{$prefix} {$cwhere['clause']}";
+        $params = array_merge($params,(array) $cwhere['args']);
+        $where_init = true;
+      }
+      $where = implode(' ',$where_parts);      
+      return true;
+    }
+    return false;
+  }  
   
 	/**
 	 * query
@@ -394,7 +425,7 @@ class TMVC_PDO
   function query($query=null,$params=null,$fetch_mode=null)
   {
     if(!isset($query))
-      $query = $this->_query_assemble($fetch_mode);
+      $query = $this->_query_assemble($params,$fetch_mode);
   
     return $this->_query($query,$params,TMVC_SQL_NONE,$fetch_mode);
   }  
@@ -411,7 +442,7 @@ class TMVC_PDO
   function query_all($query=null,$params=null,$fetch_mode=null)
   {
     if(!isset($query))
-      $query = $this->_query_assemble($fetch_mode);
+      $query = $this->_query_assemble($params,$fetch_mode);
   
     return $this->_query($query,$params,TMVC_SQL_ALL,$fetch_mode);
   }  
@@ -428,7 +459,10 @@ class TMVC_PDO
   function query_one($query=null,$params=null,$fetch_mode=null)
   {
     if(!isset($query))
-      $query = $this->_query_assemble($fetch_mode);
+    {
+      $this->limit(1);
+      $query = $this->_query_assemble($params,$fetch_mode);
+    }
   
     return $this->_query($query,$params,TMVC_SQL_INIT,$fetch_mode);
   }  
@@ -456,6 +490,7 @@ class TMVC_PDO
       $this->result = $this->pdo->prepare($query);
     } catch (PDOException $e) {
         trigger_error(sprintf("PDO Error: %s Query: %s",$e->getMessage(),$query),E_USER_ERROR);
+        return false;
     }      
     
     /* execute with params */
@@ -463,6 +498,7 @@ class TMVC_PDO
       $this->result->execute($params);  
     } catch (PDOException $e) {
         trigger_error(sprintf("PDO Error: %s Query: %s",$e->getMessage(),$query),E_USER_ERROR);
+        return false;
     }      
   
     /* get result with fetch mode */
@@ -478,11 +514,136 @@ class TMVC_PDO
         break;
       case TMVC_SQL_NONE:
       default:
+        return true;
         break;
-    }  
+    }
     
   }
 
+	/**
+	 * update
+	 *
+	 * update records
+	 *
+	 * @access	public
+	 * @param   int $fetch_mode the fetch formatting mode
+	 */    
+  function update($table,$columns)
+  {
+    if(empty($table))
+    {
+      trigger_error("Unable to update, table name required",E_USER_ERROR);
+      return false;
+    }
+    if(empty($columns)||!is_array($columns))
+    {
+      trigger_error("Unable to update, at least one column required",E_USER_ERROR);
+      return false;
+    }
+    $query = array("UPDATE {$table} SET");
+    $fields = array();
+    $params = array();
+    foreach($columns as $cname => $cvalue)
+    {
+      if(!empty($cname))
+      {
+        $fields[] = "{$cname}=?";
+        $params[] = $cvalue;
+      }
+    }
+    $query[] = implode(',',$fields);
+    
+    // assemble where clause
+    if($this->_assemble_where($where_string,$where_params))
+    {    
+      $query[] = $where_string;
+      $params = array_merge($params,$where_params);
+    }
+
+    $query = implode(' ',$query);
+    
+    $this->query_params = array('select' => '*');
+    
+    return $this->_query($query,$params);
+  }
+
+	/**
+	 * insert
+	 *
+	 * update records
+	 *
+	 * @access	public
+	 * @param   string $table
+	 * @param   array  $columns
+	 */    
+  function insert($table,$columns)
+  {
+    if(empty($table))
+    {
+      trigger_error("Unable to insert, table name required",E_USER_ERROR);
+      return false;
+    }
+    if(empty($columns)||!is_array($columns))
+    {
+      trigger_error("Unable to insert, at least one column required",E_USER_ERROR);
+      return false;
+    }
+    
+    $column_names = array_keys($columns);
+    
+    $query = array(sprintf("INSERT INTO `{$table}` (`%s`) VALUES",implode('`,`',$column_names)));
+    $fields = array();
+    $params = array();
+    foreach($columns as $cname => $cvalue)
+    {
+      if(!empty($cname))
+      {
+        $fields[] = "?";
+        $params[] = $cvalue;
+      }
+    }
+    $query[] = '(' . implode(',',$fields) . ')';
+    
+    $query = implode(' ',$query);
+    
+    $this->_query($query,$params);
+    return $this->last_insert_id();
+  }
+
+  
+	/**
+	 * delete
+	 *
+	 * delete records
+	 *
+	 * @access	public
+	 * @param   string $table
+	 * @param   array  $columns
+	 */    
+  function delete($table)
+  {
+    if(empty($table))
+    {
+      trigger_error("Unable to delete, table name required",E_USER_ERROR);
+      return false;
+    }
+    $query = array("DELETE FROM `{$table}`");
+    $params = array();
+    
+    // assemble where clause
+    if($this->_assemble_where($where_string,$where_params))
+    {    
+      $query[] = $where_string;
+      $params = array_merge($params,$where_params);
+    }
+
+    $query = implode(' ',$query);
+    
+    $this->query_params = array('select' => '*');
+    
+    return $this->_query($query,$params);
+  }
+  
 	/**
 	 * next
 	 *
@@ -521,13 +682,33 @@ class TMVC_PDO
 	 */    
   function num_rows()
   {
-    return count($this->result->fetchAll());
+    switch($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME))
+    {
+      case 'mysql':
+        return mysql_num_rows();
+        break;
+      default:
+        return count($this->result->fetchAll());
+    }
   }
 
 	/**
+	 * affected_rows
+	 *
+	 * get number of affected rows from previous insert/update/delete
+	 *
+	 * @access	public
+	 * @return	int $id
+	 */    
+  function affected_rows()
+  {
+    return $this->result->rowCount();
+  }
+  
+	/**
 	 * last_query
 	 *
-	 * get last query executed
+	 * return last query executed
 	 *
 	 * @access	public
 	 */    
