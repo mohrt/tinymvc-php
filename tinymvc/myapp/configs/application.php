@@ -9,6 +9,11 @@
  * @author		Monte Ohrt
  */
 
+ 
+/* URL routing, use preg_replace() compatible syntax */
+$config['routing']['search'] =  array();
+$config['routing']['replace'] = array();
+ 
 /* name of default controller when none is given in the URL */
 $config['default_controller'] = 'default';
 
