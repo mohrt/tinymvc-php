@@ -97,7 +97,7 @@ if(!empty($config['routing']['search'])&&!empty($config['routing']['replace']))
   
 /* get controller/method from path_info,
    use defaults if none given */
-$path_info = !empty($path_info) ? explode('/',$path_info) : null;
+$path_info = !empty($_SERVER['PATH_INFO']) ? explode('/',$_SERVER['PATH_INFO']) : null;
 $controller = !empty($path_info[1]) ? preg_replace('!\W!','',$path_info[1]) : $config['default_controller'];
 $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller}.php";
 $unknown_controller = false;
