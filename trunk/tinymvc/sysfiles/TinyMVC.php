@@ -93,9 +93,7 @@ include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
 
 /* apply routing */
 if(!empty($config['routing']['search'])&&!empty($config['routing']['replace']))
-  $path_info = preg_replace($config['routing']['search'],$config['routing']['replace'],$_SERVER['PATH_INFO']);
-else
-  $path_info = $_SERVER['PATH_INFO'];
+  $_SERVER['PATH_INFO'] = preg_replace($config['routing']['search'],$config['routing']['replace'],$_SERVER['PATH_INFO']);
   
 /* get controller/method from path_info,
    use defaults if none given */
