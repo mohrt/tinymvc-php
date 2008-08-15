@@ -91,9 +91,15 @@ if(!defined('TMVC_MYAPPDIR'))
 /* include application config */
 include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
 
+/* apply routing */
+if(!empty($config['routing']['search'])&&!empty($config['routing']['replace']))
+  $path_info = preg_replace($config['routing']['search'],$config['routing']['replace'],$_SERVER['PATH_INFO']);
+else
+  $path_info = $_SERVER['PATH_INFO'];
+  
 /* get controller/method from path_info,
    use defaults if none given */
-$path_info = !empty($_SERVER['PATH_INFO']) ? explode('/',$_SERVER['PATH_INFO']) : null;
+$path_info = !empty($path_info) ? explode('/',$path_info) : null;
 $controller = !empty($path_info[1]) ? preg_replace('!\W!','',$path_info[1]) : $config['default_controller'];
 $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller}.php";
 $unknown_controller = false;
