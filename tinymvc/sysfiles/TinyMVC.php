@@ -26,15 +26,15 @@ if(!defined('DS'))
 
 class tmvc
 {
-	/**
-	 * instance
-	 *
-	 * get/set the tmvc object instance
-	 *
-	 * @access	public
-	 * @param   object $new_instance reference to new object instance
-	 * @return  object $instance reference to object instance
-	 */    
+  /**
+   * instance
+   *
+   * get/set the tmvc object instance
+   *
+   * @access	public
+   * @param   object $new_instance reference to new object instance
+   * @return  object $instance reference to object instance
+   */    
   public static function &instance($new_instance=null)
   {
     static $instance = null;
@@ -42,7 +42,31 @@ class tmvc
       $instance = $new_instance;
     return $instance;
   }
+
+  /**
+   * timer
+   *
+   * get/set timer values
+   *
+   * @access  public
+p
+   * @param   string $id the timer id to set (or compare with $id2)
+   * @param   string $id2 the timer id to compare with $id
+   * @return  float  difference of two times
+   */    
+  public static function timer($id=null,$id2=null)
+  {
+    static $times = array();
+    if($id !== null && $id2 !== null)
+      return (isset($times[$id]) && isset($times[$id2])) ? ($times[$id2] - $times[$id]) : false;
+    elseif($id !== null)
+      return $times[$id] = microtime();
+    return false;
+  }
 }
+
+// set initial timer
+tmvc::timer('tmvc_app_start');
 
 /**
  * __autoload
@@ -147,6 +171,9 @@ if(!empty($config['scripts']))
     $tmvc->load->script($script);
 }
   
+if($config['timer'])
+  ob_start();
+
 try {
   if($unknown_controller === false)
     $tmvc->$controller_method();
@@ -155,5 +182,13 @@ try {
 } catch (Exception $e) {
   trigger_error("Unknown controller method '{$controller_method}'",E_USER_ERROR);
 }
-  
+
+if($config['timer'])
+{
+  $output = ob_get_contents();
+  ob_end_clean();
+  tmvc::timer('tmvc_app_end');
+  echo str_replace('{TMVC_TIMER}',sprintf('%0.5f',tmvc::timer('tmvc_app_start','tmvc_app_end')),$output);
+}
+ 
 ?>
