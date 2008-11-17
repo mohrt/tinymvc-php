@@ -102,6 +102,7 @@ class TMVC_PDO
         $config['pass'],
         array(PDO::ATTR_PERSISTENT => !empty($config['persistent']) ? true : false)
         );
+      $this->pdo->exec("SET CHARACTER SET {$config['charset']}"); 
     } catch (PDOException $e) {
         trigger_error(sprintf("Can't connect to PDO database '{$config['type']}'. Error: %s",$e->getMessage()),E_USER_ERROR);
     }
