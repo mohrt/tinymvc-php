@@ -121,14 +121,12 @@ class tmvc
    */    
   public function setupErrorHandling()
   {
-    /* DEBUG
     if(defined('TMVC_ERROR_HANDLING') && TMVC_ERROR_HANDLING==1) {
       // catch all uncaught exceptions
       set_exception_handler(array('TinyMVC_ExceptionHandler','handleException'));
-      require_once(TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . 'TinyMVC_ErrorHandler.php');   
+      require_once(TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . 'tinymvc_errorhandler.php');   
       set_error_handler('TinyMVC_ErrorHandler');
     }
-    */
   }
 
   /**
