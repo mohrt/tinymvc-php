@@ -116,7 +116,7 @@ class TinyMVC_View
   public function _view($_tmvc_filepath,$view_vars = null)
   {
     if(!file_exists($_tmvc_filepath))
-      trigger_error("Unknown file '$_tmvc_filepath'",E_USER_ERROR);
+      throw new Exception("Unknown file '$_tmvc_filepath'");
 
     // bring view vars into view scope
       extract($this->view_vars);

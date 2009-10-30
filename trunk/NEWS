@@ -1,4 +1,10 @@
-* add a trigger_error() if database.php is not found.
+1.1
+---
+
+* allow multiple database connection handlers
+* add active record features to database model
+* replace trigger_error() with exception handler
+* throw exception if database.php is not found.
 
 1.0.1
 -----

@@ -19,7 +19,7 @@ if(!defined('TMVC_SQL_ALL'))
   define('TMVC_SQL_ALL', 2);
 
 /**
- * TMVC_PDO
+ * TinyMVC_PDO
  * 
  * PDO database access
  * compile PHP with --enable-pdo (default with PHP 5.1+)
@@ -28,7 +28,7 @@ if(!defined('TMVC_SQL_ALL'))
  * @author		Monte Ohrt
  */
 
-class TMVC_PDO
+class TinyMVC_PDO
 {
  	/**
 	 * $pdo
@@ -86,10 +86,10 @@ class TMVC_PDO
   function __construct($config) {
     
    if(!class_exists('PDO'))
-     trigger_error("PHP PDO package is required.",E_USER_ERROR);
+     throw new Exception("PHP PDO package is required.");
      
    if(empty($config))
-     trigger_error("database definitions required.",E_USER_ERROR);
+     throw new Exception("database definitions required.");
 
    if(empty($config['charset']))
     $config['charset'] = 'UTF-8';
@@ -104,7 +104,7 @@ class TMVC_PDO
         );
       $this->pdo->exec("SET CHARACTER SET {$config['charset']}"); 
     } catch (PDOException $e) {
-        trigger_error(sprintf("Can't connect to PDO database '{$config['type']}'. Error: %s",$e->getMessage()),E_USER_ERROR);
+        throw new Exception(sprintf("Can't connect to PDO database '{$config['type']}'. Error: %s",$e->getMessage()));
     }
     
     // make PDO handle errors with exceptions
@@ -149,7 +149,7 @@ class TMVC_PDO
   function where($clause,$args)
   {
     if(empty($clause))
-      trigger_error(sprintf("where cannot be empty"),E_USER_ERROR);
+      throw new Exception(sprintf("where cannot be empty"));
   
     if(!preg_match('![=<>]!',$clause))
      $clause .= '=';  
@@ -189,7 +189,7 @@ class TMVC_PDO
     
     // make sure number of ? match number of args
     if(($count = substr_count($clause,'?')) && (count($args) != $count))
-      trigger_error(sprintf("Number of where clause args don't match number of ?: '%s'",$clause),E_USER_ERROR);
+      throw new Exception(sprintf("Number of where clause args don't match number of ?: '%s'",$clause));
       
     if(!isset($this->query_params['where']))
       $this->query_params['where'] = array();
@@ -349,7 +349,7 @@ class TMVC_PDO
   
     if(empty($this->query_params['from']))
     {
-      trigger_error("Unable to get(), set from() first",E_USER_ERROR);
+      throw new Exception("Unable to get(), set from() first");
       return false;
     }
     
@@ -490,7 +490,7 @@ class TMVC_PDO
     try {
       $this->result = $this->pdo->prepare($query);
     } catch (PDOException $e) {
-        trigger_error(sprintf("PDO Error: %s Query: %s",$e->getMessage(),$query),E_USER_ERROR);
+        throw new Exception(sprintf("PDO Error: %s Query: %s",$e->getMessage(),$query));
         return false;
     }      
     
@@ -498,7 +498,7 @@ class TMVC_PDO
     try {
       $this->result->execute($params);  
     } catch (PDOException $e) {
-        trigger_error(sprintf("PDO Error: %s Query: %s",$e->getMessage(),$query),E_USER_ERROR);
+        throw new Exception(sprintf("PDO Error: %s Query: %s",$e->getMessage(),$query));
         return false;
     }      
   
@@ -533,12 +533,12 @@ class TMVC_PDO
   {
     if(empty($table))
     {
-      trigger_error("Unable to update, table name required",E_USER_ERROR);
+      throw new Exception("Unable to update, table name required");
       return false;
     }
     if(empty($columns)||!is_array($columns))
     {
-      trigger_error("Unable to update, at least one column required",E_USER_ERROR);
+      throw new Exception("Unable to update, at least one column required");
       return false;
     }
     $query = array("UPDATE {$table} SET");
@@ -581,12 +581,12 @@ class TMVC_PDO
   {
     if(empty($table))
     {
-      trigger_error("Unable to insert, table name required",E_USER_ERROR);
+      throw new Exception("Unable to insert, table name required");
       return false;
     }
     if(empty($columns)||!is_array($columns))
     {
-      trigger_error("Unable to insert, at least one column required",E_USER_ERROR);
+      throw new Exception("Unable to insert, at least one column required");
       return false;
     }
     
@@ -625,7 +625,7 @@ class TMVC_PDO
   {
     if(empty($table))
     {
-      trigger_error("Unable to delete, table name required",E_USER_ERROR);
+      throw new Exception("Unable to delete, table name required");
       return false;
     }
     $query = array("DELETE FROM `{$table}`");

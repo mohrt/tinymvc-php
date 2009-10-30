@@ -47,6 +47,7 @@
 		</style>
 	</head>
 	<body>
+		
 	  <h1>Welcome to TinyMVC!</h1>
 		
 		<p>This is TinyMVC version <?=TMVC_VERSION?>.</p>
@@ -63,7 +64,7 @@
 		<div id="bottom	">
 			<a href="http://www.tinymvc.com/">TinyMVC</a> is licensed under the GNU <a rel="license" href="http://www.gnu.org/licenses/lgpl.html">LGPL</a> license.
 		<br />
-		<span style="font-size: 0.8em">This page was rendered awfully fast.</span>
+		<span style="font-size: 0.8em">This page was rendered in {TMVC_TIMER} seconds.</span>
 		</div>
 	</body>
 </html>
