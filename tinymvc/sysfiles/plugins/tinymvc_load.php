@@ -50,13 +50,13 @@ class TinyMVC_Load
       $filename = strtolower($model_name) . '.php';
 
     if(empty($model_alias))  
-      trigger_error("Model name cannot be empty",E_USER_ERROR);
+      throw new Exception("Model name cannot be empty");
 
     if(!preg_match('!^[a-zA-Z][a-zA-Z0-9_]+$!',$model_alias))
-      trigger_error("Model name '{$model_alias}' is an invalid syntax",E_USER_ERROR);
+      throw new Exception("Model name '{$model_alias}' is an invalid syntax");
       
     if(method_exists($this,$model_alias))
-      trigger_error("Model name '{$model_alias}' is an invalid (reserved) name",E_USER_ERROR);
+      throw new Exception("Model name '{$model_alias}' is an invalid (reserved) name");
 
     /* model already loaded? silently skip */
     if(isset($this->$model_alias))
@@ -65,13 +65,13 @@ class TinyMVC_Load
     $filepath = TMVC_MYAPPDIR . 'models' . DS . $filename;
   
     if(!file_exists($filepath))
-      trigger_error("Unknown model file '{$filename}'",E_USER_ERROR);
+      throw new Exception("Unknown model file '{$filename}'");
 
     require_once($filepath);
     
     /* class name must be the same as the model name */
     if(!class_exists($model_name))
-      trigger_error("Unknown classname '{$model_name}'",E_USER_ERROR);
+      throw new Exception("Unknown classname '{$model_name}'");
     
     /* get instance of tmvc object */
     $tmvc = tmvc::instance();
@@ -102,13 +102,13 @@ class TinyMVC_Load
       $alias = $class_name;
 
     if(empty($alias))  
-      trigger_error("Library name cannot be empty",E_USER_ERROR);
+      throw new Exception("Library name cannot be empty");
 
     if(!preg_match('!^[a-zA-Z][a-zA-Z_]+$!',$alias))
-      trigger_error("Library name '{$alias}' is an invalid syntax",E_USER_ERROR);
+      throw new Exception("Library name '{$alias}' is an invalid syntax");
       
     if(method_exists($this,$alias))
-      trigger_error("Library name '{$alias}' is an invalid (reserved) name",E_USER_ERROR);
+      throw new Exception("Library name '{$alias}' is an invalid (reserved) name");
 
     /* library already loaded? silently skip */
     if(isset($this->$alias))
@@ -130,12 +130,12 @@ class TinyMVC_Load
         $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
     
       if(!file_exists($filepath))
-        trigger_error("Unknown library '{$class_name}'",E_USER_ERROR);
+        throw new Exception("Unknown library '{$class_name}'");
   
       require_once($filepath);
       
       if(!class_exists($class_name))
-        trigger_error("Unknown classname '{$class_name}'",E_USER_ERROR);
+        throw new Exception("Unknown classname '{$class_name}'");
     
     }    
     
@@ -162,7 +162,7 @@ class TinyMVC_Load
   {
 
     if(!preg_match('!^[a-zA-Z][a-zA-Z_]+$!',$script_name))
-      trigger_error("Invalid script name '{$script_name}'",E_USER_ERROR);
+      throw new Exception("Invalid script name '{$script_name}'");
     
     $filename = 'script.' . $script_name . '.php';
 
@@ -174,7 +174,7 @@ class TinyMVC_Load
       $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
   
     if(!file_exists($filepath))
-      trigger_error("Unknown script file '{$filename}'",E_USER_ERROR);
+      throw new Exception("Unknown script file '{$filename}'");
 
     return require_once($filepath);
       
@@ -212,13 +212,13 @@ class TinyMVC_Load
         $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
       
       if(!file_exists($filepath))
-        trigger_error("Unknown database library '{$config[$poolname]['plugin']}'",E_USER_ERROR);
+        throw new Exception("Unknown database library '{$config[$poolname]['plugin']}'");
       
       require_once($filepath);
 
       /* classname must match the plugin name */      
       if(!class_exists($config[$poolname]['plugin']))
-        trigger_error("Unknown database class '{$config[$poolname]['plugin']}'",E_USER_ERROR);
+        throw new Exception("Unknown database class '{$config[$poolname]['plugin']}'");
       /* add to runtime cache */
       $dbs[$poolname] = new $config[$poolname]['plugin']($config[$poolname]);
       return $dbs[$poolname];

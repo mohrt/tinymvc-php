@@ -3,18 +3,35 @@
 /***
  * Name:       TinyMVC
  * About:      An MVC application framework for PHP
- * Copyright:  (C) 2007-2008 Monte Ohrt, All rights reserved.
+ * Copyright:  (C) 2007-2009 Monte Ohrt, All rights reserved.
  * Author:     Monte Ohrt, monte [at] ohrt [dot] com
  * License:    LGPL, see included license file  
  ***/
 
 if(!defined('TMVC_VERSION'))
-  define('TMVC_VERSION','1.0.2-dev');
+  define('TMVC_VERSION','1.2-dev');
 
 /* directory separator alias */
 if(!defined('DS'))
   define('DS',DIRECTORY_SEPARATOR);  
-  
+
+/* define myapp directory */
+if(!defined('TMVC_MYAPPDIR'))
+  define('TMVC_MYAPPDIR', TMVC_BASEDIR . 'myapp' . DS);
+
+/* set include_path for spl_autoload */
+set_include_path(get_include_path()
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS
+  . PATH_SEPARATOR . TMVC_MYAPPDIR . 'plugins' . DS
+  );
+
+/* set .php first for speed */ 
+spl_autoload_extensions('.php,.inc');
+
+/* use c-based autoloader for speed */
+spl_autoload_register();
+
 /**
  * tmvc
  *
@@ -26,21 +43,210 @@ if(!defined('DS'))
 
 class tmvc
 {
+  /* config file values */
+  var $config = null;
+  /* controller object */
+  var $controller = null;
+  /* controller method name */
+  var $action = null;
+  /* server path_info */
+  var $path_info = null;
+  /* array of url path_info segments */
+  var $url_segments = null;
+  
+  /**
+   * class constructor
+   *
+   * @access	public
+   */    
+  public function __construct($id='default')
+  {
+    /* set instance */
+    self::instance($this,$id);
+  }
+  
+  /**
+   * main method of execution
+   *
+   * @access	public
+   */    
+  public function main()
+  {
+    /* set initial timer */
+    self::timer('tmvc_app_start');
+    
+    /* set path_info */
+    $this->path_info = !empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
+    
+    /* internal error handling */
+    $this->setupErrorHandling();
+    
+    /* include application config */
+    include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
+    $this->config = $config;
+
+    /* url remapping/routing */    
+    $this->setupRouting();
+    /* split path_info into array */
+    $this->setupSegments();
+    /* create controller object */
+    $this->setupController();
+    /* get controller method */
+    $this->setupAction();
+    /* run library/script autoloaders */
+    $this->setupAutoloaders();
+      
+    /* capture output if timing */
+    if($this->config['timer'])
+      ob_start();
+    
+    /* execute controller action */
+    $this->controller->{$this->action}();
+    
+    if($this->config['timer'])
+    {
+      /* insert timing info */
+      $output = ob_get_contents();
+      ob_end_clean();
+      self::timer('tmvc_app_end');
+      echo str_replace('{TMVC_TIMER}',sprintf('%0.5f',self::timer('tmvc_app_start','tmvc_app_end')),$output);
+    }
+
+  }
+  
+  /**
+   * setup error handling for tmvc
+   *
+   * @access	public
+   */    
+  public function setupErrorHandling()
+  {
+    /* DEBUG
+    if(defined('TMVC_ERROR_HANDLING') && TMVC_ERROR_HANDLING==1) {
+      // catch all uncaught exceptions
+      set_exception_handler(array('TinyMVC_ExceptionHandler','handleException'));
+      require_once(TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . 'TinyMVC_ErrorHandler.php');   
+      set_error_handler('TinyMVC_ErrorHandler');
+    }
+    */
+  }
+
+  /**
+   * setup url routing for tmvc
+   *
+   * @access	public
+   */    
+  public function setupRouting()
+  {
+    if(!empty($this->config['routing']['search'])&&!empty($this->config['routing']['replace']))
+      $this->path_info = preg_replace(
+          $this->config['routing']['search'],
+          $this->config['routing']['replace'],
+          $this->path_info);
+  }
+
+  /**
+   * setup url segments array
+   *
+   * @access	public
+   */    
+  public function setupSegments()
+  {
+    $this->url_segments = !empty($this->path_info) ? explode('/',$this->path_info) : null;
+  }
+  
+  /**
+   * setup controller
+   *
+   * @access	public
+   */    
+  public function setupController()
+  {
+    /* get controller/method */
+    if(!empty($this->config['root_controller']))
+      $controller_name = $this->config['root_controller'];
+    else {
+      $controller_name = !empty($this->url_segments[1]) ? preg_replace('!\W!','',$this->url_segments[1]) : $this->config['default_controller'];
+      $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
+      /* if no controller, use default */
+      if(!file_exists($controller_file))
+      {
+        $controller_name = $this->config['default_controller'];
+        $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
+      }
+    }
+    
+    include($controller_file);
+    
+    /* see if controller class exists */
+    $controller_class = $controller_name.'_Controller';
+    if(!class_exists($controller_class))
+      throw new Exception("Unknown controller class '{$controller_class}'");
+      
+    /* instantiate the controller */
+    $this->controller = new $controller_class(true);
+    
+  }  
+  
+  /**
+   * setup controller method (action) to execute
+   *
+   * @access	public
+   */    
+  public function setupAction()
+  {
+    if(!empty($this->config['root_action'])) {  
+      /* user override if set */
+      $this->action = $this->config['root_action'];
+    } else {
+      /* get from url if present, else use default */
+      $this->action = !empty($this->url_segements[2]) ? $this->url_segements[2] :
+      (!empty($this->config['default_action']) ? $this->config['default_action'] : 'index');
+      /* cannot call method names starting with underscore */
+      if(substr($this->action,0,1)=='_')
+        throw new Exception("Action name not allowed '{$this->action}'");    
+    }
+  }  
+  
+  /**
+   * autoload any libs/scripts
+   *
+   * @access	public
+   */    
+  public function setupAutoloaders()
+  {
+    include(TMVC_MYAPPDIR . 'configs' . DS . 'autoload.php');
+    if(!empty($this->config['libraries']))
+    {
+      foreach($this->config['libraries'] as $library)
+        if(is_array($library))
+          $this->controller->load->library($library[0],$library[1]);
+        else
+          $this->controller->load->library($library);
+    }
+    if(!empty($this->config['scripts']))
+    {
+      foreach($this->config['scripts'] as $script)
+        $this->controller->load->script($script);
+    }
+  }
+
   /**
    * instance
    *
-   * get/set the tmvc object instance
+   * get/set the tmvc object instance(s)
    *
    * @access	public
    * @param   object $new_instance reference to new object instance
+   * @param   string $id object instance id
    * @return  object $instance reference to object instance
    */    
-  public static function &instance($new_instance=null)
+  public static function &instance($new_instance=null,$id='default')
   {
-    static $instance = null;
+    static $instance = array();
     if(isset($new_instance) && is_object($new_instance))
-      $instance = $new_instance;
-    return $instance;
+      $instance[$id] = $new_instance;
+    return $instance[$id];
   }
 
   /**
@@ -49,7 +255,6 @@ class tmvc
    * get/set timer values
    *
    * @access  public
-p
    * @param   string $id the timer id to set (or compare with $id2)
    * @param   string $id2 the timer id to compare with $id
    * @return  float  difference of two times
@@ -63,132 +268,7 @@ p
       return $times[$id] = microtime();
     return false;
   }
-}
-
-// set initial timer
-tmvc::timer('tmvc_app_start');
-
-/**
- * __autoload
- *
- * auto-load internal plugin classes
- *
- * @access	public
- * @param   string $class_name the class name we are trying to load
- * @return  boolean  success or failure
- */    
-function __autoload($class_name) {
-  $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . "internal.{$class_name}.php";
-  if(!file_exists($filepath))
-    $filepath = TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS . "internal.{$class_name}.php";
-  if(!file_exists($filepath))
-    $filepath = TMVC_MYAPPDIR . 'plugins' . DS . "internal.{$class_name}.php";
-  if(!file_exists($filepath))
-    return false;
-  return require_once $filepath;
-}
-
-/**
- * tmvc_error_handler
- *
- * the internal error handler function
- *
- * @access	public
- */    
-function tmvc_error_handler($errno, $errstr, $errfile, $errline)
-{
-
-  include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
-
-  $errors = new $config['error_handler_class'];
-  $errors->trigger_error($errno, $errstr, $errfile, $errline);
-
-  /* don't execute PHP internal error handler */
-  return true;
-  
-}
-
-/* define myapp directory */
-if(!defined('TMVC_MYAPPDIR'))
-  define('TMVC_MYAPPDIR', TMVC_BASEDIR . 'myapp' . DS);
-
-/* include application config */
-include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
-
-/* apply routing */
-if(!empty($config['routing']['search'])&&!empty($config['routing']['replace']))
-  $_SERVER['PATH_INFO'] = preg_replace($config['routing']['search'],$config['routing']['replace'],$_SERVER['PATH_INFO']);
-  
-/* get controller/method from path_info,
-   use defaults if none given */
-$path_info = !empty($_SERVER['PATH_INFO']) ? explode('/',$_SERVER['PATH_INFO']) : null;
-$controller = !empty($path_info[1]) ? preg_replace('!\W!','',$path_info[1]) : $config['default_controller'];
-$controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller}.php";
-$unknown_controller = false;
-
-set_error_handler('tmvc_error_handler');
-
-/* see if controller exists */
-if(!file_exists($controller_file))
-{
-  $unknown_controller = $controller;
-  $controller = $config['default_controller'];
-  $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller}.php";
-}
-
-include($controller_file);
-
-/* see if controller class exists */
-$controller_class = $controller.'_Controller';
-if(!class_exists($controller_class))
-  trigger_error("Unknown controller class '{$controller_class}'",E_USER_ERROR);
-  
-$tmvc = new $controller_class(true);
-
-/* see if controller class method exists */
-$controller_method = !empty($path_info[2]) ? $path_info[2] : 'index';
-
-/* cannot call method names starting with underscore */
-if(substr($controller_method,0,1)=='_')
-  trigger_error("Private method name not allowed '{$controller_method}'",E_USER_ERROR);
-
-include(TMVC_MYAPPDIR . 'configs' . DS . 'autoload.php');
-
-/* auto-load libraries */
-if(!empty($config['libraries']))
-{
-  foreach($config['libraries'] as $library)
-    if(is_array($library))
-      $tmvc->load->library($library[0],$library[1]);
-    else
-      $tmvc->load->library($library);
-}
-
-/* auto-load scripts */
-if(!empty($config['scripts']))
-{
-  foreach($config['scripts'] as $script)
-    $tmvc->load->script($script);
-}
-  
-if($config['timer'])
-  ob_start();
-
-try {
-  if($unknown_controller === false)
-    $tmvc->$controller_method();
-  else
-    $tmvc->catch_controller($unknown_controller,$controller_method);
-} catch (Exception $e) {
-  trigger_error("Unknown controller method '{$controller_method}'",E_USER_ERROR);
-}
-
-if($config['timer'])
-{
-  $output = ob_get_contents();
-  ob_end_clean();
-  tmvc::timer('tmvc_app_end');
-  echo str_replace('{TMVC_TIMER}',sprintf('%0.5f',tmvc::timer('tmvc_app_start','tmvc_app_end')),$output);
+	
 }
  
 ?>

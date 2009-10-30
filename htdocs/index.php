@@ -9,13 +9,16 @@
  ***/
 
 /* PHP error reporting level, if different from default */
-//error_reporting(E_ALL);
+error_reporting(E_ALL);
 
 /* if the /tinymvc/ dir is not up one directory, uncomment and set here */
 //define('TMVC_BASEDIR','../tinymvc/');
 
 /* if the /myapp/ dir is not inside the /tinymvc/ dir, uncomment and set here */
 //define('TMVC_MYAPPDIR','/path/to/myapp/');
+
+/* define to 0 if you want errors/exceptions handled externally */
+define('TMVC_ERROR_HANDLING',1);
 
 /* directory separator alias */
 if(!defined('DS'))
@@ -25,7 +28,13 @@ if(!defined('DS'))
 if(!defined('TMVC_BASEDIR'))
   define('TMVC_BASEDIR',dirname(__FILE__) . DS . '..' . DS . 'tinymvc' . DS);
 
-/* tally-ho! */
+/* include main tmvc class */
 require(TMVC_BASEDIR . 'sysfiles' . DS . 'TinyMVC.php');
+
+/* instantiate */
+$tmvc = new tmvc();
+
+/* tally-ho! */
+$tmvc->main();
 
 ?>

@@ -55,7 +55,7 @@ class TinyMVC_Controller
 	 */    
   function catch_controller($controller,$method) {
   
-    trigger_error("Unknown controller '{$controller}'",E_USER_ERROR);
+    throw new Exception("Unknown controller '{$controller}'");
      
   }
 
@@ -68,7 +68,7 @@ class TinyMVC_Controller
 	 */    
   function __call($function, $args) {
   
-    trigger_error("Unknown controller method '{$function}'",E_USER_ERROR);
+    throw new Exception("Unknown controller method '{$function}'");
 
   }
   
