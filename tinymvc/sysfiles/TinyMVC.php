@@ -29,8 +29,11 @@ set_include_path(get_include_path()
 /* set .php first for speed */ 
 spl_autoload_extensions('.php,.inc');
 
-/* use c-based autoloader for speed */
-spl_autoload_register();
+$spl_funcs = spl_autoload_functions();
+if($spl_funcs === false)
+  spl_autoload_register();
+elseif(!in_array('spl_autoload',$spl_funcs))
+  spl_autoload_register('spl_autoload');
 
 /**
  * tmvc
@@ -161,16 +164,16 @@ class tmvc
   public function setupController()
   {
     /* get controller/method */
-    if(!empty($this->config['root_controller']))
+    if(!empty($this->config['root_controller'])) {
       $controller_name = $this->config['root_controller'];
-    else {
+      $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
+    } else {
       $controller_name = !empty($this->url_segments[1]) ? preg_replace('!\W!','',$this->url_segments[1]) : $this->config['default_controller'];
       $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
       /* if no controller, use default */
       if(!file_exists($controller_file))
       {
         $controller_name = $this->config['default_controller'];
-        $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
       }
     }
     
