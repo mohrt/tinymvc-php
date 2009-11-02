@@ -73,11 +73,11 @@ class TinyMVC_Load
     if(!class_exists($model_name))
       throw new Exception("Unknown classname '{$model_name}'");
     
-    /* get instance of tmvc object */
-    $tmvc = tmvc::instance();
+    /* get instance of controller object */
+    $controller = tmvc::instance(null,'controller');
     
     /* instantiate the object as a property */
-    $tmvc->$model_alias = new $model_name($pool_name);
+    $controller->$model_alias = new $model_name($pool_name);
     
     return true;
       
@@ -140,10 +140,10 @@ class TinyMVC_Load
     }    
     
     /* get instance of tmvc object */
-    $tmvc = tmvc::instance();    
+    $controller = tmvc::instance(null,'controller');    
     
     /* instantiate the object as a property */
-    $tmvc->$alias = new $class_name;    
+    $controller->$alias = new $class_name;  
     
     return true;
       

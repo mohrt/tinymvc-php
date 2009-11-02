@@ -27,14 +27,14 @@ class TinyMVC_Controller
 	 */
   function __construct()
   {
-    /* set the class instance */
-    tmvc::instance($this);
-    
+    /* save controller instance */
+    tmvc::instance($this,'controller');
+  
     /* instantiate load library */
     $this->load = new TinyMVC_Load;  
 
     /* instantiate view library */
-    $this->view = new TinyMVC_View;  
+    $this->view = new TinyMVC_View;
   }
   
 	/**
@@ -45,19 +45,6 @@ class TinyMVC_Controller
 	 * @access	public
 	 */    
   function index() { }
-
-	/**
-	 * catch_controller
-	 *
-	 * called when no controller was found
-	 *
-	 * @access	public
-	 */    
-  function catch_controller($controller,$method) {
-  
-    throw new Exception("Unknown controller '{$controller}'");
-     
-  }
 
 	/**
 	 * __call

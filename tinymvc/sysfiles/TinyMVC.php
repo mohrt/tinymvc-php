@@ -153,7 +153,7 @@ class tmvc
    */    
   public function setupSegments()
   {
-    $this->url_segments = !empty($this->path_info) ? explode('/',$this->path_info) : null;
+    $this->url_segments = !empty($this->path_info) ? array_slice(explode('/',$this->path_info),1) : null;
   }
   
   /**
