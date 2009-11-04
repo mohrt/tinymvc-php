@@ -1,3 +1,10 @@
+* converted error handling to exceptions
+* mvc system now wrapped in bootstrap object
+* added root_controller and root_action config settings
+  to force the root controller/action regardless of url
+* unknown actions now fall back to the default_action setting in config
+* php default spl_autoload now used for all plugins
+
 1.1
 ---
 
