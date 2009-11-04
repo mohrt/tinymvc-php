@@ -1,7 +1,7 @@
 <?php
 
 /***
- * Name:       library.uri.php
+ * Name:       tinymvc_library_uri.php
  * About:      a URI library for TinyMVC
  * Copyright:  (C) Monte Ohrt, All rights reserved.
  * Author:     Monte Ohrt, monte [at] ohrt [dot] com
@@ -21,7 +21,7 @@
 
  
 
-class URI {
+class TinyMVC_Library_URI {
  
   var $path = null;
  

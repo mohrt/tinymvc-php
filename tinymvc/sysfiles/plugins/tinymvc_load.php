@@ -61,17 +61,6 @@ class TinyMVC_Load
     /* model already loaded? silently skip */
     if(isset($this->$model_alias))
       return true;
-      
-    $filepath = TMVC_MYAPPDIR . 'models' . DS . $filename;
-  
-    if(!file_exists($filepath))
-      throw new Exception("Unknown model file '{$filename}'");
-
-    require_once($filepath);
-    
-    /* class name must be the same as the model name */
-    if(!class_exists($model_name,false))
-      throw new Exception("Unknown classname '{$model_name}'");
     
     /* get instance of controller object */
     $controller = tmvc::instance(null,'controller');
@@ -94,12 +83,12 @@ class TinyMVC_Load
 	 * @param   string $filename the filename
 	 * @return  boolean
 	 */    
-  public function library($class_name,$alias=null,$filename=null)
+  public function library($lib_name,$alias=null,$filename=null)
   {
 
     /* if no alias, use the class name */
     if(!isset($alias))
-      $alias = $class_name;
+      $alias = $lib_name;
 
     if(empty($alias))  
       throw new Exception("Library name cannot be empty");
@@ -109,38 +98,15 @@ class TinyMVC_Load
       
     if(method_exists($this,$alias))
       throw new Exception("Library name '{$alias}' is an invalid (reserved) name");
-
-    /* library already loaded? silently skip */
-    if(isset($this->$alias))
-      return true;
-
-    /* if no class exists, attempt to load plugin */
-    if(!class_exists($class_name,false))
-    {
-
-      /* if no filename, use the class name */
-      if(!isset($filename))
-        $filename = 'library.' . $class_name . '.php';
-  
-      /* look in myapps/myfiles/sysfiles plugins dirs */
-      $filepath = TMVC_MYAPPDIR . 'plugins' . DS . $filename;
-      if(!file_exists($filepath))
-        $filepath = TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS . $filename;
-      if(!file_exists($filepath))
-        $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
-    
-      if(!file_exists($filepath))
-        throw new Exception("Unknown library '{$class_name}'");
-  
-      require_once($filepath);
-      
-      if(!class_exists($class_name,false))
-        throw new Exception("Unknown classname '{$class_name}'");
-    
-    }    
     
     /* get instance of tmvc object */
     $controller = tmvc::instance(null,'controller');    
+
+    /* library already loaded? silently skip */
+    if(isset($controller->$alias))
+      return true;
+    
+    $class_name = "TinyMVC_Library_{$lib_name}";
     
     /* instantiate the object as a property */
     $controller->$alias = new $class_name;  
@@ -164,7 +130,7 @@ class TinyMVC_Load
     if(!preg_match('!^[a-zA-Z][a-zA-Z_]+$!',$script_name))
       throw new Exception("Invalid script name '{$script_name}'");
     
-    $filename = 'script.' . $script_name . '.php';
+    $filename = strtolower("TinyMVC_Script_{$script_name}.php");
 
     /* look in myapps/myfiles/sysfiles plugins dirs */
     $filepath = TMVC_MYAPPDIR . 'plugins' . DS . $filename;
@@ -202,23 +168,6 @@ class TinyMVC_Load
     }
     if($poolname && isset($config[$poolname]) && !empty($config[$poolname]['plugin']))
     {
-      $filename = 'db.' . $config[$poolname]['plugin'] . '.php';
-      
-      /* look for the plugin in apps/myfiles/sysfiles plugins dirs */
-      $filepath = TMVC_MYAPPDIR . 'plugins' . DS . $filename;
-      if(!file_exists($filepath))
-        $filepath = TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS . $filename;
-      if(!file_exists($filepath))
-        $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
-      
-      if(!file_exists($filepath))
-        throw new Exception("Unknown database library '{$config[$poolname]['plugin']}'");
-      
-      require_once($filepath);
-
-      /* classname must match the plugin name */      
-      if(!class_exists($config[$poolname]['plugin'],false))
-        throw new Exception("Unknown database class '{$config[$poolname]['plugin']}'");
       /* add to runtime cache */
       $dbs[$poolname] = new $config[$poolname]['plugin']($config[$poolname]);
       return $dbs[$poolname];
