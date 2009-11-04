@@ -181,8 +181,6 @@ class tmvc
     
     /* see if controller class exists */
     $controller_class = $controller_name.'_Controller';
-    if(!class_exists($controller_class,false))
-      throw new Exception("Unknown controller class '{$controller_class}'");
       
     /* instantiate the controller */
     $this->controller = new $controller_class(true);
@@ -217,17 +215,17 @@ class tmvc
   public function setupAutoloaders()
   {
     include(TMVC_MYAPPDIR . 'configs' . DS . 'autoload.php');
-    if(!empty($this->config['libraries']))
+    if(!empty($config['libraries']))
     {
-      foreach($this->config['libraries'] as $library)
+      foreach($config['libraries'] as $library)
         if(is_array($library))
           $this->controller->load->library($library[0],$library[1]);
         else
           $this->controller->load->library($library);
     }
-    if(!empty($this->config['scripts']))
+    if(!empty($config['scripts']))
     {
-      foreach($this->config['scripts'] as $script)
+      foreach($config['scripts'] as $script)
         $this->controller->load->script($script);
     }
   }

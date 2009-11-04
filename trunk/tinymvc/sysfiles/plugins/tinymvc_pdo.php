@@ -85,7 +85,7 @@ class TinyMVC_PDO
 	 */
   function __construct($config) {
     
-   if(!class_exists('PDO'))
+   if(!class_exists('PDO',false))
      throw new Exception("PHP PDO package is required.");
      
    if(empty($config))
