@@ -1,6 +1,6 @@
 <?php
 
-/***
+/**
  * Name:       TinyMVC
  * About:      An MVC application framework for PHP
  * Copyright:  (C) 2007-2008 Monte Ohrt, All rights reserved.
@@ -70,7 +70,7 @@ class TinyMVC_Load
     require_once($filepath);
     
     /* class name must be the same as the model name */
-    if(!class_exists($model_name))
+    if(!class_exists($model_name,false))
       throw new Exception("Unknown classname '{$model_name}'");
     
     /* get instance of controller object */
@@ -115,7 +115,7 @@ class TinyMVC_Load
       return true;
 
     /* if no class exists, attempt to load plugin */
-    if(!class_exists($class_name))
+    if(!class_exists($class_name,false))
     {
 
       /* if no filename, use the class name */
@@ -134,7 +134,7 @@ class TinyMVC_Load
   
       require_once($filepath);
       
-      if(!class_exists($class_name))
+      if(!class_exists($class_name,false))
         throw new Exception("Unknown classname '{$class_name}'");
     
     }    
@@ -217,7 +217,7 @@ class TinyMVC_Load
       require_once($filepath);
 
       /* classname must match the plugin name */      
-      if(!class_exists($config[$poolname]['plugin']))
+      if(!class_exists($config[$poolname]['plugin'],false))
         throw new Exception("Unknown database class '{$config[$poolname]['plugin']}'");
       /* add to runtime cache */
       $dbs[$poolname] = new $config[$poolname]['plugin']($config[$poolname]);

@@ -153,7 +153,7 @@ class tmvc
    */    
   public function setupSegments()
   {
-    $this->url_segments = !empty($this->path_info) ? array_slice(explode('/',$this->path_info),1) : null;
+    $this->url_segments = !empty($this->path_info) ? array_filter(explode('/',$this->path_info)) : null;
   }
   
   /**
@@ -181,7 +181,7 @@ class tmvc
     
     /* see if controller class exists */
     $controller_class = $controller_name.'_Controller';
-    if(!class_exists($controller_class))
+    if(!class_exists($controller_class,false))
       throw new Exception("Unknown controller class '{$controller_class}'");
       
     /* instantiate the controller */
