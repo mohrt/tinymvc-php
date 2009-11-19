@@ -199,7 +199,7 @@ class tmvc
       $this->action = $this->config['root_action'];
     } else {
       /* get from url if present, else use default */
-      $this->action = !empty($this->url_segements[2]) ? $this->url_segements[2] :
+      $this->action = !empty($this->url_segments[2]) ? $this->url_segments[2] :
       (!empty($this->config['default_action']) ? $this->config['default_action'] : 'index');
       /* cannot call method names starting with underscore */
       if(substr($this->action,0,1)=='_')
