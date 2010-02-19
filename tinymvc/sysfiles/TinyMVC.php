@@ -23,6 +23,7 @@ if(!defined('TMVC_MYAPPDIR'))
 set_include_path(get_include_path()
   . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS
   . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS
+  . PATH_SEPARATOR . TMVC_MYAPPDIR . 'models' . DS
   . PATH_SEPARATOR . TMVC_MYAPPDIR . 'plugins' . DS
   );
 
