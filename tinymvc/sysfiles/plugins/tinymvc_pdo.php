@@ -683,14 +683,7 @@ class TinyMVC_PDO
 	 */    
   function num_rows()
   {
-    switch($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME))
-    {
-      case 'mysql':
-        return mysql_num_rows();
-        break;
-      default:
-        return count($this->result->fetchAll());
-    }
+    return $this->result->rowCount();
   }
 
 	/**
