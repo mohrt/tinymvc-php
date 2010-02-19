@@ -174,6 +174,7 @@ class tmvc
       if(!file_exists($controller_file))
       {
         $controller_name = $this->config['default_controller'];
+        $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
       }
     }
     
