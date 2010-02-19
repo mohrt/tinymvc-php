@@ -34,7 +34,7 @@ class TinyMVC_Model
 	 * @access	public
 	 */
   function __construct($poolname=null) {
-    $this->db = tmvc::instance()->load->database($poolname);
+    $this->db = tmvc::instance()->controller->load->database($poolname);
   }
   
 }
