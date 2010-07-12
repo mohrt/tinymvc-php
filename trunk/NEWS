@@ -1,3 +1,8 @@
+* fix uri library to include all segments, including controller/action
+
+1.2
+---
+
 * converted error handling to exceptions
 * mvc system now wrapped in bootstrap object
 * added root_controller and root_action config settings
