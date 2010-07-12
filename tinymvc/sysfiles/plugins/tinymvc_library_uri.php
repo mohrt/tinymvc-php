@@ -28,8 +28,7 @@ class TinyMVC_Library_URI {
   function __construct()
   {
     if(!empty($_SERVER['PATH_INFO'])) {
-      $this->path = explode('/',$_SERVER['PATH_INFO']);
-      $this->path = array_slice($this->path,2);
+      $this->path = preg_split('!/!',$_SERVER['PATH_INFO'],-1,PREG_SPLIT_NO_EMPTY);
     }
   }
  
