@@ -266,7 +266,7 @@ class tmvc
     if($id !== null && $id2 !== null)
       return (isset($times[$id]) && isset($times[$id2])) ? ($times[$id2] - $times[$id]) : false;
     elseif($id !== null)
-      return $times[$id] = microtime();
+      return $times[$id] = microtime(true);
     return false;
   }
 	

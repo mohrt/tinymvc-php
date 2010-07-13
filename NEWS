@@ -1,3 +1,4 @@
+* fix bug with page timer periodically negative number
 * fix uri library to include all segments, including controller/action
 
 1.2
