@@ -93,11 +93,13 @@ class TinyMVC_PDO
 
    if(empty($config['charset']))
     $config['charset'] = 'UTF-8';
+
+   $dsn = !empty($config['dsn']) ? $config['dsn'] : "{$config['type']}:host={$config['host']};dbname={$config['name']};charset={$config['charset']}";
      
     /* attempt to instantiate PDO object and database connection */
     try {    
       $this->pdo = new PDO(
-        "{$config['type']}:host={$config['host']};dbname={$config['name']};charset={$config['charset']}",
+        $dsn,
         $config['user'],
         $config['pass'],
         array(PDO::ATTR_PERSISTENT => !empty($config['persistent']) ? true : false)
