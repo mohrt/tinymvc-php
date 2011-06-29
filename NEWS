@@ -1,3 +1,4 @@
+* changed PATH_INFO to ORIG_PATH_INFO (patch by dangerdan)
 * add "dsn" database config property as valid dsn
 * fix bug with page timer periodically negative number
 * fix uri library to include all segments, including controller/action
