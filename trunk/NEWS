@@ -1,3 +1,4 @@
+* changed again, look for PATH_INFO first, otherwise ORIG_PATH_INFO (mohrt)
 * changed PATH_INFO to ORIG_PATH_INFO (patch by dangerdan)
 * add "dsn" database config property as valid dsn
 * fix bug with page timer periodically negative number
