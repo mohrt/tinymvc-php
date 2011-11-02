@@ -92,7 +92,7 @@ class TinyMVC_PDO
      throw new Exception("database definitions required.");
 
    if(empty($config['charset']))
-    $config['charset'] = 'UTF-8';
+    $config['charset'] = 'utf8';
 
    $dsn = !empty($config['dsn']) ? $config['dsn'] : "{$config['type']}:host={$config['host']};dbname={$config['name']};charset={$config['charset']}";
      

@@ -1,4 +1,5 @@
 * if PATH_INFO and PATH_INFO_ORIG are not present, do not throw notice
+* change default PDO charset from UTF-8 to utf8
 
 1.2.1
 -----
