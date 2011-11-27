@@ -21,10 +21,21 @@ if(!defined('TMVC_MYAPPDIR'))
 
 /* set include_path for spl_autoload */
 set_include_path(get_include_path()
-  . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS
-  . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS
+  . PATH_SEPARATOR . TMVC_MYAPPDIR . 'controllers' . DS
   . PATH_SEPARATOR . TMVC_MYAPPDIR . 'models' . DS
+  . PATH_SEPARATOR . TMVC_MYAPPDIR . 'configs' . DS
   . PATH_SEPARATOR . TMVC_MYAPPDIR . 'plugins' . DS
+  . PATH_SEPARATOR . TMVC_MYAPPDIR . 'views' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'controllers' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'models' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'configs' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'myfiles' . DS . 'views' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'controllers' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'models' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'configs' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS
+  . PATH_SEPARATOR . TMVC_BASEDIR . 'sysfiles' . DS . 'views' . DS
   );
 
 /* set .php first for speed */ 
@@ -81,13 +92,13 @@ class tmvc
     
     /* set path_info */
     $this->path_info = !empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] :
-	(!empty($_SERVER['ORIG_PATH_INFO']) ? $_SERVER['ORIG_PATH_INFO'] : '');
+	    (!empty($_SERVER['ORIG_PATH_INFO']) ? $_SERVER['ORIG_PATH_INFO'] : '');
     
     /* internal error handling */
     $this->setupErrorHandling();
     
     /* include application config */
-    include(TMVC_MYAPPDIR . 'configs' . DS . 'application.php');
+    include('config_application.php');
     $this->config = $config;
 
     /* url remapping/routing */    
@@ -129,7 +140,7 @@ class tmvc
     if(defined('TMVC_ERROR_HANDLING') && TMVC_ERROR_HANDLING==1) {
       // catch all uncaught exceptions
       set_exception_handler(array('TinyMVC_ExceptionHandler','handleException'));
-      require_once(TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . 'tinymvc_errorhandler.php');   
+      require_once('tinymvc_errorhandler.php');   
       set_error_handler('TinyMVC_ErrorHandler');
     }
   }
@@ -168,15 +179,15 @@ class tmvc
     /* get controller/method */
     if(!empty($this->config['root_controller'])) {
       $controller_name = $this->config['root_controller'];
-      $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
+      $controller_file = "{$controller_name}.php";
     } else {
       $controller_name = !empty($this->url_segments[1]) ? preg_replace('!\W!','',$this->url_segments[1]) : $this->config['default_controller'];
-      $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
+      $controller_file = "{$controller_name}.php";
       /* if no controller, use default */
       if(!file_exists($controller_file))
       {
         $controller_name = $this->config['default_controller'];
-        $controller_file = TMVC_MYAPPDIR . DS . 'controllers' . DS . "{$controller_name}.php";
+        $controller_file = "{$controller_name}.php";
       }
     }
     
@@ -217,7 +228,7 @@ class tmvc
    */    
   public function setupAutoloaders()
   {
-    include(TMVC_MYAPPDIR . 'configs' . DS . 'autoload.php');
+    include('config_autoload.php');
     if(!empty($config['libraries']))
     {
       foreach($config['libraries'] as $library)

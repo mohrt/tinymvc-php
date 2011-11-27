@@ -58,12 +58,12 @@ class TinyMVC_Load
     if(method_exists($this,$model_alias))
       throw new Exception("Model name '{$model_alias}' is an invalid (reserved) name");
 
-    /* model already loaded? silently skip */
-    if(isset($this->$model_alias))
-      return true;
-    
     /* get instance of controller object */
     $controller = tmvc::instance(null,'controller');
+    
+    /* model already loaded? silently skip */
+    if(isset($controller->$model_alias))
+      return true;
     
     /* instantiate the object as a property */
     $controller->$model_alias = new $model_name($pool_name);
@@ -132,17 +132,11 @@ class TinyMVC_Load
     
     $filename = strtolower("TinyMVC_Script_{$script_name}.php");
 
-    /* look in myapps/myfiles/sysfiles plugins dirs */
-    $filepath = TMVC_MYAPPDIR . 'plugins' . DS . $filename;
-    if(!file_exists($filepath))
-      $filepath = TMVC_BASEDIR . 'myfiles' . DS . 'plugins' . DS . $filename;
-    if(!file_exists($filepath))
-      $filepath = TMVC_BASEDIR . 'sysfiles' . DS . 'plugins' . DS . $filename;
-  
-    if(!file_exists($filepath))
-      throw new Exception("Unknown script file '{$filename}'");
-
-    return require_once($filepath);
+    try {
+      require_once($filepath);
+    } catch (Exception $e) {
+      throw new Excption("Unknown script file '{$filename}'");      
+    }
       
   }
 
@@ -158,7 +152,7 @@ class TinyMVC_Load
   public function database($poolname = null) {
     static $dbs = array();
     /* load config information */
-    include(TMVC_MYAPPDIR . 'configs' . DS . 'database.php');
+    include('config_database.php');
     if(!$poolname) 
       $poolname=isset($config['default_pool']) ? $config['default_pool'] : 'default';
     if ($poolname && isset($dbs[$poolname]))
