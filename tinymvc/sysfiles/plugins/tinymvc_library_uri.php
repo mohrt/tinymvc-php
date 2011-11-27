@@ -27,9 +27,7 @@ class TinyMVC_Library_URI {
  
   function __construct()
   {
-    if(!empty($_SERVER['PATH_INFO'])) {
-      $this->path = preg_split('!/!',$_SERVER['PATH_INFO'],-1,PREG_SPLIT_NO_EMPTY);
-    }
+    $this->path = tmvc::instance()->url_segments;
   }
  
   function segment($index)
