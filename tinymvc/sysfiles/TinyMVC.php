@@ -242,6 +242,11 @@ class tmvc
       foreach($config['scripts'] as $script)
         $this->controller->load->script($script);
     }
+    if(!empty($config['models']))
+    {
+      foreach($config['models'] as $model)
+        $this->controller->load->model($model);
+    }
   }
 
   /**

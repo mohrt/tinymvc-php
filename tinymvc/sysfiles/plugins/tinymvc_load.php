@@ -135,7 +135,7 @@ class TinyMVC_Load
     try {
       require_once($filepath);
     } catch (Exception $e) {
-      throw new Excption("Unknown script file '{$filename}'");      
+      throw new Exception("Unknown script file '{$filename}'");      
     }
       
   }
