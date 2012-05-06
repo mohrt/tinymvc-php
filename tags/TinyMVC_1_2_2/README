@@ -1,0 +1,76 @@
+NAME:
+    TinyMVC: An MVC application framework for PHP.
+
+AUTHOR:  
+    Monte Ohrt (monte [at] ohrt [dot] com)
+  
+VERSION:
+    1.2.2-dev
+  
+DATE:
+    Sep 1, 2011
+  
+WEBSITE:
+    http://www.tinymvc.com/
+  
+DOWNLOAD:
+    http://www.tinymvc.com/download
+
+ANONYMOUS SVN:
+    svn checkout http://tinymvc-php.googlecode.com/svn/trunk/ tinymvc-php-read-only
+
+    
+DESCRIPTION:
+
+    What is TinyMVC?
+    
+    TinyMVC is an Model-View-Controller application framework for PHP.
+    Its design goals are to minimally provide separation between the database
+    operations (Model), the presentation (View), and the glue in between
+    (Controller). With very little extras bundled in, this framework is
+    extremely fast and flexible. Some design aspects and terminology of TinyMVC
+    have been inspired by other PHP frameworks, although the code is 100%
+    original.
+
+    What TinyMVC is NOT
+    
+    TinyMVC is NOT a full-featured framework. As it stands, it is a simple
+    MVC structure with a database support layer (PDO). Any and all features
+    you desire (form validation, session handling, etc.) are easily added
+    with your own plugins. Plugins will become available in the wiki as
+    they are programmed or contributed by other users. If a plugin is
+    essential enough, it may eventually find its way to the core distribution.
+
+
+REQUIREMENTS:    
+    
+    TinyMVC requires PHP 5. The bundled database library requires PDO,
+    which is included with PHP 5.1 and up.
+   
+   
+FEATURES:
+
+    TinyMVC supplies easy separation between Model, View and
+    Controller, and supports PDO for the database abstraction layer. Each
+    and every component of TinyMVC is customizable with class extensions,
+    and the framework is easily extended with your own plugins.
+    
+    Multiple applications are also easy to handle. You can drop your plugins
+    in at the application level, or you can share them across applications.
+    The file structure is setup so your customizations are kept isolated from
+    the core, so updates are easy to maintain.
+    
+
+COPYRIGHT:
+    Copyright(c) 2007 New Digital Group, Inc. All rights reserved.
+
+    This library is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation; either version 2.1 of the License, or (at
+    your option) any later version.
+
+    This library is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+    License for more details.    
+    
