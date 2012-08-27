@@ -94,7 +94,12 @@ class TinyMVC_PDO
    if(empty($config['charset']))
     $config['charset'] = 'utf8';
 
-   $dsn = !empty($config['dsn']) ? $config['dsn'] : "{$config['type']}:host={$config['host']};dbname={$config['name']};charset={$config['charset']}";
+   if(!empty($config['dsn']))
+     $dsn = $config['dsn'];
+   elseif($config['type'] == 'sqlsrv')
+     $dsn = "{$config['type']}:Server={$config['host']};Database={$config['name']}";
+   else
+     $dsn = "{$config['type']}:host={$config['host']};dbname={$config['name']};charset={$config['charset']}";
      
     /* attempt to instantiate PDO object and database connection */
     try {    

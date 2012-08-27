@@ -184,7 +184,7 @@ class tmvc
       $controller_name = !empty($this->url_segments[1]) ? preg_replace('!\W!','',$this->url_segments[1]) : $this->config['default_controller'];
       $controller_file = "{$controller_name}.php";
       /* if no controller, use default */
-      if(!file_exists($controller_file))
+      if(!stream_resolve_include_path($controller_file))
       {
         $controller_name = $this->config['default_controller'];
         $controller_file = "{$controller_name}.php";
