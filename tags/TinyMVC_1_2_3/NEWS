@@ -1,0 +1,45 @@
+* fix typo in varname in tinymvc_load file
+
+1.2.2
+-----
+
+* fix test for existing model when loading (forum topic 329)
+* if PATH_INFO and PATH_INFO_ORIG are not present, do not throw notice
+* change default PDO charset from UTF-8 to utf8
+
+1.2.1
+-----
+
+* PATH_INFO first, otherwise ORIG_PATH_INFO (mohrt, dangerdan)
+* add "dsn" database config property as valid dsn
+* fix bug with page timer periodically negative number
+* fix uri library to include all segments, including controller/action
+
+1.2
+---
+
+* converted error handling to exceptions
+* mvc system now wrapped in bootstrap object
+* added root_controller and root_action config settings
+  to force the root controller/action regardless of url
+* unknown actions now fall back to the default_action setting in config
+* php default spl_autoload now used for all plugins
+
+1.1
+---
+
+* allow multiple database connection handlers
+* add active record features to database model
+* replace trigger_error() with exception handler
+* throw exception if database.php is not found.
+
+1.0.1
+-----
+
+* add view controller so view loading worsk as $this->view->display() like in the docs (mohrt)
+* use try/catch for controller method execution so __call can be utilized (areazero, mohrt)
+
+1.0
+---
+
+initial release
