@@ -133,7 +133,7 @@ class TinyMVC_Load
     $filename = strtolower("TinyMVC_Script_{$script_name}.php");
 
     try {
-      require_once($filepath);
+      require_once($filename);
     } catch (Exception $e) {
       throw new Exception("Unknown script file '{$filename}'");      
     }
