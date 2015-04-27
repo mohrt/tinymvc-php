@@ -16,8 +16,8 @@ WEBSITE:
 DOWNLOAD:
     http://www.tinymvc.com/download
 
-ANONYMOUS SVN:
-    svn checkout http://tinymvc-php.googlecode.com/svn/trunk/ tinymvc-php-read-only
+ANONYMOUS GIT:
+    https://github.com/mohrt/tinymvc-php
 
     
 DESCRIPTION:
