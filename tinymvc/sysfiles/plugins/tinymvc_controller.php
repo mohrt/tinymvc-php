@@ -55,7 +55,7 @@ class TinyMVC_Controller
 	 */    
   function __call($function, $args) {
   
-    throw new Exception("Unknown controller method '{$function}'");
+    throw new Exception($this->index());
 
   }
   
