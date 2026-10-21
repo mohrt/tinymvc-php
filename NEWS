@@ -1,4 +1,4 @@
-1.2.4
+2.0.0
 -----
 
 * PHP 8.2+ compatibility: declare controller $load/$view properties and

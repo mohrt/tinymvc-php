@@ -9,7 +9,7 @@
  ***/
 
 if(!defined('TMVC_VERSION'))
-  define('TMVC_VERSION','1.2.4-dev');
+  define('TMVC_VERSION','2.0.0');
 
 /* directory separator alias */
 if(!defined('DS'))
