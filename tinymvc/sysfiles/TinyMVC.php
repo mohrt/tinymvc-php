@@ -44,7 +44,7 @@ spl_autoload_extensions('.php,.inc');
 $spl_funcs = spl_autoload_functions();
 if($spl_funcs === false)
   spl_autoload_register();
-elseif(!in_array('spl_autoload',$spl_funcs))
+elseif(!in_array('spl_autoload',$spl_funcs,true))
   spl_autoload_register('spl_autoload');
 
 /**

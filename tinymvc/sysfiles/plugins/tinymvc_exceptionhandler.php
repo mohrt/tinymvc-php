@@ -25,8 +25,9 @@ class TinyMVC_ExceptionHandler extends ErrorException {
 	 * printException
 	 *
 	 * @access	public
+	 * @param   Exception|Throwable $e
 	 */    
-  public static function printException(Exception $e)
+  public static function printException($e)
   {
     switch ($e->getCode()) {
         case E_ERROR:
@@ -62,11 +63,17 @@ class TinyMVC_ExceptionHandler extends ErrorException {
         case E_USER_NOTICE:
 				  $code_name = 'E_USER_NOTICE';
         break;
-        case E_STRICT:
+        case 2048: // E_STRICT; the constant is deprecated as of PHP 8.4
 				  $code_name = 'E_STRICT';
         break;
         case E_RECOVERABLE_ERROR:
 				  $code_name = 'E_RECOVERABLE_ERROR';
+        break;
+        case E_DEPRECATED:
+				  $code_name = 'E_DEPRECATED';
+        break;
+        case E_USER_DEPRECATED:
+				  $code_name = 'E_USER_DEPRECATED';
         break;
 				default:
 				  $code_name = $e->getCode();
@@ -74,10 +81,10 @@ class TinyMVC_ExceptionHandler extends ErrorException {
 	  }
 	  ?>
     <span style="text-align: left; background-color: #fcc; border: 1px solid #600; color: #600; display: block; margin: 1em 0; padding: .33em 6px">
-      <b>Error:</b> <?=$code_name?><br />
-      <b>Message:</b> <?=$e->getMessage()?><br />
-      <b>File:</b> <?=$e->getFile()?><br />
-      <b>Line:</b> <?=$e->getLine()?>
+      <b>Error:</b> <?=self::escape($code_name)?><br />
+      <b>Message:</b> <?=self::escape($e->getMessage())?><br />
+      <b>File:</b> <?=self::escape($e->getFile())?><br />
+      <b>Line:</b> <?=(int)$e->getLine()?>
     </span>
 	  <?php
   }
@@ -86,10 +93,25 @@ class TinyMVC_ExceptionHandler extends ErrorException {
 	 * handleException
 	 *
 	 * @access	public
+	 * @param   Exception|Throwable $e
 	 */    
-  public static function handleException(Exception $e)
+  public static function handleException($e)
   {
        return self::printException($e);
+  }
+
+	/**
+	 * escape
+	 *
+	 * html-escape a value for display in the error box
+	 *
+	 * @access	private
+	 * @param   mixed $value
+	 * @return  string
+	 */    
+  private static function escape($value)
+  {
+    return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
   }
 }
 

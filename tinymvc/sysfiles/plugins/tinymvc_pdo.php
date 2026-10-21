@@ -109,7 +109,8 @@ class TinyMVC_PDO
         $config['pass'],
         array(PDO::ATTR_PERSISTENT => !empty($config['persistent']) ? true : false)
         );
-      $this->pdo->exec("SET CHARACTER SET {$config['charset']}"); 
+      if($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql')
+        $this->pdo->exec("SET CHARACTER SET {$config['charset']}");
     } catch (PDOException $e) {
         throw new Exception(sprintf("Can't connect to PDO database '{$config['type']}'. Error: %s",$e->getMessage()));
     }
@@ -177,7 +178,7 @@ class TinyMVC_PDO
 	 */    
   function orwhere($clause,$args)
   {
-    $this->_where($clause,$args,'OR');    
+    $this->_where($clause,(array)$args,'OR');    
   }  
   
 	/**

@@ -41,8 +41,10 @@ class TinyMVC_Library_URI {
   function uri_to_assoc($index)
   {
     $assoc = array();
-    for($x = count($this->path), $y=$index-1; $y<$x; $y+=2)
+    for($x = count((array)$this->path), $y=$index-1; $y<$x; $y+=2)
     {
+      if(!isset($this->path[$y]))
+        continue;
       $assoc_idx = $this->path[$y];
       $assoc[$assoc_idx] = isset($this->path[$y+1]) ? $this->path[$y+1] : null;
     }

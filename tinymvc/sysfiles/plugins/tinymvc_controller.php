@@ -17,8 +17,28 @@
  * @author		Monte Ohrt
  */
 
+#[\AllowDynamicProperties]
 class TinyMVC_Controller
 {
+
+ 	/**
+	 * $load
+	 *
+	 * the load library; models and libraries are attached
+	 * to the controller as dynamic properties
+	 *
+	 * @access	public
+	 */
+  var $load = null;
+
+ 	/**
+	 * $view
+	 *
+	 * the view library
+	 *
+	 * @access	public
+	 */
+  var $view = null;
 
  	/**
 	 * class constructor

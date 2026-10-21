@@ -44,8 +44,13 @@ DESCRIPTION:
 
 REQUIREMENTS:    
     
-    TinyMVC requires PHP 5. The bundled database library requires PDO,
-    which is included with PHP 5.1 and up.
+    TinyMVC requires PHP 5.4 or later, and is tested on PHP 5.6 through 8.5.
+    The bundled database library requires PDO.
+
+    To run the smoke tests against each PHP version (requires docker):
+
+        tests/run.sh            # all versions
+        tests/run.sh 5.6 8.5    # specific versions
    
    
 FEATURES:
