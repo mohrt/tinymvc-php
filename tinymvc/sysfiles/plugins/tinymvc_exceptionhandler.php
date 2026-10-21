@@ -97,6 +97,7 @@ class TinyMVC_ExceptionHandler extends ErrorException {
 	 */    
   public static function handleException($e)
   {
+       error_log(sprintf('Uncaught %s: %s in %s:%d', get_class($e), $e->getMessage(), $e->getFile(), $e->getLine()));
        return self::printException($e);
   }
 

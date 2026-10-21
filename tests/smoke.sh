@@ -7,8 +7,10 @@ cd "$(dirname "$0")/.." || exit 1
 failures=0
 
 # check <path_info> <expected substring> [front controller]
+# runs from the front controller's directory, as a web server would
 check() {
-  out=$(PATH_INFO="$1" php -d display_errors=1 "${3:-tests/index.php}" 2>&1)
+  front=${3:-tests/index.php}
+  out=$(cd "$(dirname "$front")" && PATH_INFO="$1" php -d display_errors=1 "$(basename "$front")" 2>&1)
   if printf '%s' "$out" | grep -qF -- "$2" \
     && ! printf '%s' "$out" | grep -qiE 'fatal error|deprecated|warning:|notice:'; then
     echo "  pass  $1"
@@ -28,6 +30,8 @@ done
 check / 'Welcome to TinyMVC!' htdocs/index.php
 check / 'VIEW hello world 0.'
 check /routed 'ROUTED OK'
+check /index 'VIEW hello world 0.'
+check /index 'Welcome to TinyMVC!' htdocs/index.php
 check /smoke/db 'DB OK'
 check /smoke/uri/a/1/b/2 'URI OK'
 check /smoke/helper 'HELPER OK'

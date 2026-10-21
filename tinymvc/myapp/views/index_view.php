@@ -57,9 +57,9 @@
 
 		<p>The controller for this page is here:</p>
 
-		<div class="code">tinymvc/myapp/controller/index.php</div>
+		<div class="code">tinymvc/myapp/controllers/default.php</div>
 		
-		Let's get started, head to the <a href="http://www.tinymvc.com/wiki/index.php/Documentation">documentation</a>!
+		Let's get started, head to the <a href="https://www.tinymvc.com/docs">documentation</a>!
 		
 		<div id="bottom	">
 			<a href="http://www.tinymvc.com/">TinyMVC</a> is licensed under the GNU <a rel="license" href="http://www.gnu.org/licenses/lgpl.html">LGPL</a> license.

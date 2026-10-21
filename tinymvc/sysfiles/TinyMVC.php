@@ -9,7 +9,7 @@
  ***/
 
 if(!defined('TMVC_VERSION'))
-  define('TMVC_VERSION','2.0.0');
+  define('TMVC_VERSION','2.0.1');
 
 /* directory separator alias */
 if(!defined('DS'))
@@ -179,18 +179,21 @@ class tmvc
     /* get controller/method */
     if(!empty($this->config['root_controller'])) {
       $controller_name = $this->config['root_controller'];
-      $controller_file = "{$controller_name}.php";
+      $controller_file = $this->findController($controller_name);
     } else {
       $controller_name = !empty($this->url_segments[1]) ? preg_replace('!\W!','',$this->url_segments[1]) : $this->config['default_controller'];
-      $controller_file = "{$controller_name}.php";
+      $controller_file = $this->findController($controller_name);
       /* if no controller, use default */
-      if(!stream_resolve_include_path($controller_file))
+      if(!$controller_file)
       {
         $controller_name = $this->config['default_controller'];
-        $controller_file = "{$controller_name}.php";
+        $controller_file = $this->findController($controller_name);
       }
     }
     
+    if(!$controller_file)
+      throw new Exception("Unknown controller '{$controller_name}'");
+
     include($controller_file);
     
     /* see if controller class exists */
@@ -200,6 +203,32 @@ class tmvc
     $this->controller = new $controller_class(true);
     
   }  
+
+  /**
+   * find a controller file
+   *
+   * only the controllers directories are searched, not the whole
+   * include_path, which also contains "." (usually the doc root)
+   *
+   * @access	public
+   * @param   string $controller_name
+   * @return  string|false the controller file path
+   */    
+  public function findController($controller_name)
+  {
+    $dirs = array(
+      TMVC_MYAPPDIR,
+      TMVC_BASEDIR . 'myfiles' . DS,
+      TMVC_BASEDIR . 'sysfiles' . DS
+      );
+    foreach($dirs as $dir)
+    {
+      $filepath = $dir . 'controllers' . DS . "{$controller_name}.php";
+      if(is_file($filepath))
+        return $filepath;
+    }
+    return false;
+  }
   
   /**
    * setup controller method (action) to execute
